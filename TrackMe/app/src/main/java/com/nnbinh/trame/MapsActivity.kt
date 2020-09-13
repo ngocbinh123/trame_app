@@ -1,5 +1,6 @@
 package com.nnbinh.trame
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 
@@ -9,20 +10,29 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.nnbinh.trame.helper.PermissionHelper
+import com.nnbinh.trame.helper.PermissionHelper.LocationPermissionCallBack
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, LocationPermissionCallBack {
+  val REQ_ACCESS_LOCATION = 2001
   private lateinit var mMap: GoogleMap
 
+  val permissionHelper: PermissionHelper by lazy { PermissionHelper(this) }
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_maps)
     // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-    val mapFragment = supportFragmentManager
-        .findFragmentById(R.id.map) as SupportMapFragment
-    mapFragment.getMapAsync(this)
   }
 
+  override fun onResume() {
+    super.onResume()
+    checkLocationPermissions()
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    permissionHelper.onActivityResult(requestCode)
+  }
   /**
    * Manipulates the map once available.
    * This callback is triggered when the map is ready to be used.
@@ -39,5 +49,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     val sydney = LatLng(-34.0, 151.0)
     mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
     mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+  }
+
+  override fun onLocationGrant(identifyNumber: Int) {
+    loadMapFragment()
+  }
+
+  override fun onLocationDeny(identifyNumber: Int) {
+  }
+
+  private fun loadMapFragment() {
+    val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+    mapFragment.getMapAsync(this)
+  }
+
+  private fun checkLocationPermissions() {
+    PermissionHelper(this@MapsActivity).performLocationTask(REQ_ACCESS_LOCATION)
   }
 }

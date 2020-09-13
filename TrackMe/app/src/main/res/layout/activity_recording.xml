@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.record.RecordingActivity"
+        />
+    <ImageView
+        android:id="@+id/imv_pause"
+        android:layout_width="@dimen/size_ic_46"
+        android:layout_height="@dimen/size_ic_46"
+        android:src="@drawable/ic_pause"
+        android:layout_marginBottom="@dimen/space_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/imv_stop"
+        android:layout_width="@dimen/size_ic_46"
+        android:layout_height="@dimen/size_ic_46"
+        android:src="@drawable/ic_stop"
+        android:visibility="invisible"
+        android:layout_marginStart="@dimen/space_4"
+        app:layout_constraintTop_toTopOf="@id/imv_pause"
+        app:layout_constraintBottom_toBottomOf="@id/imv_pause"
+        app:layout_constraintStart_toEndOf="@id/imv_pause"
+        />
+
+    <ImageView
+        android:id="@+id/imv_restart"
+        android:layout_width="@dimen/size_ic_46"
+        android:layout_height="@dimen/size_ic_46"
+        android:src="@drawable/ic_restart"
+        android:visibility="invisible"
+        android:layout_marginEnd="@dimen/space_4"
+        app:layout_constraintEnd_toStartOf="@id/imv_pause"
+        app:layout_constraintTop_toTopOf="@id/imv_pause"
+        app:layout_constraintBottom_toBottomOf="@id/imv_pause"
+        />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
