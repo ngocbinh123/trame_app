@@ -8,6 +8,8 @@
          location permissions for the "MyLocation" functionality.
     -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.INTERNET" />
 
   <application
       android:name=".MainApp"
@@ -32,7 +34,7 @@
 
     <activity
         android:name=".ui.histories.HistoriesActivity"
-        android:label="@string/title_activity_maps">
+        android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -41,6 +43,7 @@
     </activity>
 
     <activity android:name=".ui.record.RecordingActivity"/>
+    <service android:name=".service.TrackLocationService"/>
   </application>
 
 </manifest>

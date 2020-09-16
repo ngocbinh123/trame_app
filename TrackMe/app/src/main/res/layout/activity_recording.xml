@@ -1,29 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+  <data>
+    <variable
+        name="viewModel"
+        type="com.nnbinh.trame.ui.record.RecordingVM"
+        />
+    <import type="android.view.View"/>
+    <import type="com.nnbinh.trame.data.RecordState" />
+  </data>
   <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/line_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.35"
+        />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/line_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7"
+        />
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/space_64"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/txt_distance"
+        app:layout_constraintTop_toTopOf="parent"
         tools:context=".ui.record.RecordingActivity"
         />
+
+    <TextView
+        android:id="@+id/txt_distance_label"
+        style="@style/AppTheme.TextView.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_64"
+        android:text="@string/distance"
+        app:layout_constraintBottom_toTopOf="@+id/imv_pause"
+        app:layout_constraintEnd_toEndOf="@+id/line_left"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    
+    <TextView
+        android:id="@+id/txt_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/AppTheme.TextView"
+        app:distance="@{viewModel.curDistance}"
+        android:layout_marginTop="@dimen/space_8"
+        tools:text="12.0 km"
+        app:layout_constraintBottom_toTopOf="@+id/txt_distance_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/line_left"
+        />
+
+    <TextView
+        android:id="@+id/txt_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/AppTheme.TextView"
+        app:speed="@{viewModel.curSpeed}"
+        tools:text="244 km/h"
+        app:layout_constraintStart_toEndOf="@id/line_left"
+        app:layout_constraintEnd_toStartOf="@id/line_right"
+        app:layout_constraintTop_toTopOf="@id/txt_distance"
+        app:layout_constraintBottom_toBottomOf="@id/txt_distance"
+        />
+
+    <TextView
+        android:id="@+id/txt_speed_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/AppTheme.TextView.Label"
+        android:text="@string/speed"
+        app:layout_constraintTop_toTopOf="@id/txt_distance_label"
+        app:layout_constraintStart_toStartOf="@+id/txt_speed"
+        app:layout_constraintEnd_toEndOf="@+id/txt_speed"
+        />
+
+    <TextView
+        android:id="@+id/txt_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/AppTheme.TextView"
+        android:text="@{viewModel.recordingTime}"
+        tools:text="01:32:53"
+        app:layout_constraintTop_toTopOf="@id/txt_distance"
+        app:layout_constraintBottom_toBottomOf="@id/txt_distance_label"
+        app:layout_constraintStart_toEndOf="@id/line_right"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
     <ImageView
         android:id="@+id/imv_pause"
         android:layout_width="@dimen/size_ic_46"
         android:layout_height="@dimen/size_ic_46"
+        android:layout_marginBottom="@dimen/space_32"
         android:src="@drawable/ic_pause"
-        android:layout_marginBottom="@dimen/space_24"
+        android:visibility="@{viewModel.recordState == RecordState.RECORDING ? View.VISIBLE : View.INVISIBLE}"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         />
 
     <ImageView
@@ -31,20 +120,22 @@
         android:layout_width="@dimen/size_ic_46"
         android:layout_height="@dimen/size_ic_46"
         android:src="@drawable/ic_stop"
-        android:visibility="invisible"
         android:layout_marginStart="@dimen/space_4"
+        android:visibility="@{viewModel.recordState == RecordState.PAUSE ? View.VISIBLE : View.INVISIBLE}"
+        tools:visibility="invisible"
         app:layout_constraintTop_toTopOf="@id/imv_pause"
         app:layout_constraintBottom_toBottomOf="@id/imv_pause"
         app:layout_constraintStart_toEndOf="@id/imv_pause"
         />
 
     <ImageView
-        android:id="@+id/imv_restart"
+        android:id="@+id/imv_resume"
         android:layout_width="@dimen/size_ic_46"
         android:layout_height="@dimen/size_ic_46"
-        android:src="@drawable/ic_restart"
-        android:visibility="invisible"
+        android:src="@drawable/ic_resume"
         android:layout_marginEnd="@dimen/space_4"
+        android:visibility="@{viewModel.recordState == RecordState.PAUSE ? View.VISIBLE : View.INVISIBLE}"
+        tools:visibility="invisible"
         app:layout_constraintEnd_toStartOf="@id/imv_pause"
         app:layout_constraintTop_toTopOf="@id/imv_pause"
         app:layout_constraintBottom_toBottomOf="@id/imv_pause"

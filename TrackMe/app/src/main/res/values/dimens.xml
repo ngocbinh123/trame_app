@@ -8,4 +8,6 @@
     <dimen name="space_16">16dp</dimen>
     <dimen name="size_ic_46">46dp</dimen>
     <dimen name="space_78">78dp</dimen>
+  <dimen name="space_32">32dp</dimen>
+  <dimen name="space_64">64dp</dimen>
 </resources>

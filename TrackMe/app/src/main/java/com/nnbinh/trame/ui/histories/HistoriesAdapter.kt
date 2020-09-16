@@ -11,7 +11,7 @@ import com.nnbinh.trame.databinding.CellSessionBinding
 import com.nnbinh.trame.db.table.Session
 import com.nnbinh.trame.ui.BaseActivity
 
-class HistoriesAdapter(private val data: MutableList<Session> = arrayListOf()) : ListAdapter<Session, SessionCell>(
+class HistoriesAdapter(private val data: List<Session> = arrayListOf()) : ListAdapter<Session, SessionCell>(
     SessionsDiffCallback()) {
 
   override fun getItemCount() = data.size
