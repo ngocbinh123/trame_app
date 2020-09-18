@@ -13,4 +13,7 @@ interface SessionLocationDao {
 
   @Query("SELECT * FROM SessionLocation WHERE sessionId = :sessionId ORDER BY createdAt")
   fun getBySessionId(sessionId: Long): LiveData<List<SessionLocation>>
+
+  @Query("SELECT * FROM SessionLocation WHERE sessionId = :sessionId ORDER BY createdAt")
+  fun getBySessionIdWithoutLive(sessionId: Long): List<SessionLocation>
 }

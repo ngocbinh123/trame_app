@@ -5,11 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.nnbinh.trame.R
 import com.nnbinh.trame.databinding.CellSessionBinding
 import com.nnbinh.trame.db.table.Session
-import com.nnbinh.trame.ui.BaseActivity
 
 class HistoriesAdapter(private val data: List<Session> = arrayListOf()) : ListAdapter<Session, SessionCell>(
     SessionsDiffCallback()) {
@@ -25,7 +26,7 @@ class HistoriesAdapter(private val data: List<Session> = arrayListOf()) : ListAd
   }
 }
 
-class SessionCell(private val binding: CellSessionBinding) : RecyclerView.ViewHolder(binding.root) {
+class SessionCell(private val binding: CellSessionBinding) : RecyclerView.ViewHolder(binding.root), OnMapReadyCallback {
   fun onBind(item: Session) {
     binding.item = item
     loadMapFragment()
@@ -33,12 +34,19 @@ class SessionCell(private val binding: CellSessionBinding) : RecyclerView.ViewHo
   }
 
   private fun loadMapFragment() {
-    val mapFragment = SupportMapFragment()
-    val activity = itemView.context as HistoriesActivity
-    activity.supportFragmentManager.beginTransaction()
-      .add(R.id.lout_route, mapFragment)
-      .commit()
-    mapFragment.getMapAsync(activity)
+    (itemView.context as? HistoriesActivity)?.let { activity ->
+      val mapFragment = SupportMapFragment()
+      activity.supportFragmentManager.beginTransaction()
+          .add(R.id.lout_route, mapFragment)
+          .commit()
+      mapFragment.getMapAsync(this)
+    }
+  }
+
+  override fun onMapReady(googleMap: GoogleMap) {
+    binding.item?.let {
+      (itemView.context as? HistoriesActivity)?.viewModel?.loadRouteMapForSession(it, googleMap)
+    }
   }
 }
 

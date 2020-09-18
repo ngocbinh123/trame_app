@@ -4,18 +4,19 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.nnbinh.trame.data.RecordState
+import java.util.Date
 
 @Entity(tableName = "Session")
 data class Session(
-    @PrimaryKey(autoGenerate = true) var id: Long,
-    @ColumnInfo(name = "createdAt") var createdAt: Long,
-    @ColumnInfo(name = "distance")var distance: Double, // 2.6 km
-    @ColumnInfo(name = "duration") var duration: String, // 2:32:45
-    @ColumnInfo(name = "averageSpeed")var averageSpeed: Double, // 24 km/h
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
+    @ColumnInfo(name = "createdAt") var createdAt: Long = Date().time,
+    @ColumnInfo(name = "recordState") var recordState: String = RecordState.NEW.name,
+    @ColumnInfo(name = "duration") var duration: Long = 0, // 3600 second
+    @ColumnInfo(name = "distance") var distance: Float = 0.0f, // 2500 m
+    @ColumnInfo(name = "avgSpeed") var avgSpeed: Float = 0.0f, // 370 m/s
+    @ColumnInfo(name = "currentSpeed") var currentSpeed: Float = 0.0f, // 410 m/s
 ) {
-  fun getDistanceStr() = "$distance km"
-  fun getAverageSpeedStr() = "$averageSpeed km/h"
-
-  @Ignore
-  var locations: MutableList<SessionLocation> = arrayListOf()
+    @Ignore
+    var locations: MutableList<SessionLocation> = arrayListOf()
 }

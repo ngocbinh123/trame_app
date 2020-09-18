@@ -18,7 +18,7 @@ data class SessionLocation(
     @ColumnInfo(name = "longitude") var longitude: Double,
     @ColumnInfo(name = "sessionId") var sessionId: Long,
     @ColumnInfo(name = "createdAt") var createdAt: Long,
-    @ColumnInfo(name = "distance")var distance: Double, // 2.6 meter
-    @ColumnInfo(name = "speed")var speed: Double, // 24 m/s
+    @ColumnInfo(name = "distance")var distance: Float, // 2.6 meter
+    @ColumnInfo(name = "speed")var speed: Float, // 24 m/s
     @ColumnInfo(name = "duration")var duration: Long, // second
 )

@@ -22,6 +22,7 @@ abstract class AppDB : RoomDatabase() {
         if (INSTANCE == null) {
           INSTANCE = Room.databaseBuilder(context, AppDB::class.java, "trame.db")
               .fallbackToDestructiveMigration()
+              .allowMainThreadQueries()
               .build()
         }
       }
