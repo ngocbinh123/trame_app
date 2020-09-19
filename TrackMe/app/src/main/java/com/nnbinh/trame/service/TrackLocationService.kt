@@ -15,6 +15,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.nnbinh.trame.R
 import com.nnbinh.trame.data.KEY_SESSION_ID
 import com.nnbinh.trame.data.LOCATION_DISTANCE
 import com.nnbinh.trame.data.LOCATION_INTERVAL
@@ -30,12 +31,13 @@ class TrackLocationService : Service() {
   private var manager: LocationManager? = null
   private var locationListener: TrackLocationListener = TrackLocationListener()
 
+
   override fun onBind(intent: Intent?): IBinder? = null
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     super.onStartCommand(intent, flags, startId)
     val sessionId = intent?.getLongExtra(KEY_SESSION_ID, -1) ?: -1
-    Log.d(TAG,"sessionId: $sessionId - intent: $intent")
+    Log.d(TAG, "sessionId: $sessionId - intent: $intent")
     repo = TrackingLocationServiceRepo(applicationContext, sessionId) { stopSelf() }
     startTracking()
     startCountUpDurationTime()
@@ -59,9 +61,8 @@ class TrackLocationService : Service() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-      Toast.makeText(applicationContext, "Not enough permissions to get location",
-          Toast.LENGTH_SHORT).show()
-      stopTracking()
+      Toast.makeText(applicationContext, R.string.not_enough_permissions, Toast.LENGTH_SHORT).show()
+      stopSelf()
       return
     }
 
@@ -69,10 +70,6 @@ class TrackLocationService : Service() {
     manager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     manager?.requestLocationUpdates(GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
         locationListener)
-  }
-
-  fun stopTracking() {
-    this.onDestroy()
   }
 
   private fun startCountUpDurationTime() {
@@ -92,6 +89,7 @@ class TrackLocationService : Service() {
     override fun onLocationChanged(location: Location?) {
       Log.d(TAG, "LocationChanged: $location")
       if (location == null) return
+
       repo?.saveNewLocation(location)
     }
 

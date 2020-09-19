@@ -3,6 +3,7 @@ package com.nnbinh.trame.ui.record
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -14,6 +15,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.nnbinh.trame.R
 import com.nnbinh.trame.data.KEY_SESSION_ID
 import com.nnbinh.trame.data.PERCENT_DEFAULT_ZOOM
+import com.nnbinh.trame.data.RecordState
 import com.nnbinh.trame.databinding.ActivityRecordingBinding
 import com.nnbinh.trame.db.table.SessionLocation
 import com.nnbinh.trame.extension.setOnSingleClickListener
@@ -63,6 +65,16 @@ class RecordingActivity : BaseActivity(), OnMapReadyCallback {
 
   override fun onLocationGrant(identifyNumber: Int) {
     loadMapFragment()
+  }
+
+  override fun onBackPressed() {
+    val recordingSession = viewModel.session.value
+    if (recordingSession != null && recordingSession.recordState == RecordState.RECORDING.name) {
+      Toast.makeText(this, R.string.you_are_recording, Toast.LENGTH_SHORT).show()
+      return
+    } else {
+      super.onBackPressed()
+    }
   }
 
   private fun loadMapFragment() {
