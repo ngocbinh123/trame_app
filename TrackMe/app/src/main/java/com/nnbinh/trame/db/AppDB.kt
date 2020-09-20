@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.nnbinh.trame.db.table.SessionLocation
+import com.nnbinh.trame.db.table.SessionDistance
 import com.nnbinh.trame.db.table.SessionLocationDao
 import com.nnbinh.trame.db.table.Session
 import com.nnbinh.trame.db.table.SessionDao
 
 @Database(
-    entities = [Session::class, SessionLocation::class],
+    entities = [Session::class, SessionDistance::class],
     version = 1
 )
 abstract class AppDB : RoomDatabase() {

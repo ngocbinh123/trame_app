@@ -12,7 +12,8 @@ import com.nnbinh.trame.R
 import com.nnbinh.trame.databinding.CellSessionBinding
 import com.nnbinh.trame.db.table.Session
 
-class HistoriesAdapter(private val data: List<Session> = arrayListOf()) : ListAdapter<Session, SessionCell>(
+class HistoriesAdapter(
+    private val data: List<Session> = arrayListOf()) : ListAdapter<Session, SessionCell>(
     SessionsDiffCallback()) {
 
   override fun getItemCount() = data.size
@@ -26,7 +27,8 @@ class HistoriesAdapter(private val data: List<Session> = arrayListOf()) : ListAd
   }
 }
 
-class SessionCell(private val binding: CellSessionBinding) : RecyclerView.ViewHolder(binding.root), OnMapReadyCallback {
+class SessionCell(private val binding: CellSessionBinding) : RecyclerView.ViewHolder(
+    binding.root), OnMapReadyCallback {
   fun onBind(item: Session) {
     binding.item = item
     loadMapFragment()

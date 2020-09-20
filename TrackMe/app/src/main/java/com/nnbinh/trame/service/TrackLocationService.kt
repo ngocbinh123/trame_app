@@ -12,7 +12,6 @@ import android.location.LocationManager.GPS_PROVIDER
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
-import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.nnbinh.trame.R
@@ -20,12 +19,11 @@ import com.nnbinh.trame.data.KEY_SESSION_ID
 import com.nnbinh.trame.data.LOCATION_DISTANCE
 import com.nnbinh.trame.data.LOCATION_INTERVAL
 import com.nnbinh.trame.data.ONE_SECOND
-import com.nnbinh.trame.data.RecordState
-import com.nnbinh.trame.data.RecordState.PAUSE
+import com.nnbinh.trame.data.SessionState
+import com.nnbinh.trame.data.SessionState.PAUSE
 import com.nnbinh.trame.repo.TrackingLocationServiceRepo
 
 class TrackLocationService : Service() {
-  private val TAG = "TrackLocationService"
   private var repo: TrackingLocationServiceRepo? = null
   private var handler: Handler = Handler()
   private var manager: LocationManager? = null
@@ -37,7 +35,6 @@ class TrackLocationService : Service() {
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     super.onStartCommand(intent, flags, startId)
     val sessionId = intent?.getLongExtra(KEY_SESSION_ID, -1) ?: -1
-    Log.d(TAG, "sessionId: $sessionId - intent: $intent")
     repo = TrackingLocationServiceRepo(applicationContext, sessionId) { stopSelf() }
     startTracking()
     startCountUpDurationTime()
@@ -45,7 +42,6 @@ class TrackLocationService : Service() {
   }
 
   override fun onDestroy() {
-    Log.d(TAG, "onDestroy")
     repo?.updateSessionState(PAUSE)
     super.onDestroy()
     handler.removeCallbacksAndMessages(null)
@@ -75,7 +71,7 @@ class TrackLocationService : Service() {
   private fun startCountUpDurationTime() {
     handler.postDelayed({
       repo?.updateSessionDuration()
-      if (repo?.session?.recordState == RecordState.RECORDING.name) {
+      if (repo?.session?.state == SessionState.RECORDING.name) {
         startCountUpDurationTime()
       } else {
         stopSelf()
@@ -84,12 +80,9 @@ class TrackLocationService : Service() {
   }
 
   inner class TrackLocationListener : LocationListener {
-    private val TAG = "TrackLocationListener"
 
     override fun onLocationChanged(location: Location?) {
-      Log.d(TAG, "LocationChanged: $location")
       if (location == null) return
-
       repo?.saveNewLocation(location)
     }
 

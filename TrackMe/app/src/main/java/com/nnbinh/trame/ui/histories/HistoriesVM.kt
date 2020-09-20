@@ -4,15 +4,13 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.nnbinh.trame.data.PERCENT_DEFAULT_ZOOM
-import com.nnbinh.trame.data.RecordState.RECORDING
+import com.nnbinh.trame.data.SessionState.RECORDING
 import com.nnbinh.trame.db.table.Session
 import com.nnbinh.trame.extension.addInto
-import com.nnbinh.trame.repo.SessionLocationRepo
+import com.nnbinh.trame.helper.MapHelper
+import com.nnbinh.trame.repo.SessionDistanceRepo
 import com.nnbinh.trame.repo.SessionRepo
 import com.nnbinh.trame.ui.BaseVM
 import io.reactivex.Maybe
@@ -22,15 +20,15 @@ import io.reactivex.schedulers.Schedulers
 class HistoriesVM(application: Application) : BaseVM(application) {
   private val TAG = "HistoriesVM"
   private val sessionRepo: SessionRepo by lazy { SessionRepo(application.applicationContext) }
-  private val locationRepo: SessionLocationRepo by lazy {
-    SessionLocationRepo(application.applicationContext)
+  private val mDistanceRepo: SessionDistanceRepo by lazy {
+    SessionDistanceRepo(application.applicationContext)
   }
   val sessions: LiveData<List<Session>> = sessionRepo.getAll()
   val startSession: MutableLiveData<Session> = MutableLiveData()
   fun checkHasRecordingSession() {
     Maybe
         .fromCallable {
-          return@fromCallable sessionRepo.getAllWithoutLive().firstOrNull { it.recordState == RECORDING.name }
+          return@fromCallable sessionRepo.getAllWithoutLive().firstOrNull { it.state == RECORDING.name }
               ?: throw Throwable("Don't have service is running in background")
         }
         .subscribeOn(Schedulers.io())
@@ -64,21 +62,23 @@ class HistoriesVM(application: Application) : BaseVM(application) {
   fun loadRouteMapForSession(session: Session, map: GoogleMap) {
     Maybe
         .fromCallable {
-          val locations = locationRepo.getBySessionIdWithoutLive(session.id)
+          val locations = mDistanceRepo.getBySessionIdWithoutLive(session.id)
           if (locations.isEmpty()) throw Throwable("session(${session.id}) does not have location")
-          return@fromCallable locations
+
+          val paths: MutableList<LatLng> = locations.map {
+            LatLng(it.latitude, it.longitude)
+          }.toMutableList()
+
+          paths.add(0, LatLng(locations.first().prevLatitude, locations.first().prevLatitude))
+          return@fromCallable paths
         }
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ locations ->
-          locations.forEachIndexed { index, location ->
-            val place = LatLng(location.latitude, location.longitude)
-            map.addMarker(MarkerOptions().position(place))
-
-            if (locations.size - 1 == index) {
-              map.moveCamera(CameraUpdateFactory.newLatLngZoom(place, PERCENT_DEFAULT_ZOOM))
-            }
-          }
+        .subscribe({ paths ->
+          val helper = MapHelper(map)
+          helper.addStartEndPlaces(paths.first(), paths.last())
+          helper.drawFullRoute(paths)
+          helper.moveTo(paths.last())
         }, { t ->
           Log.e(TAG, t.message)
         })

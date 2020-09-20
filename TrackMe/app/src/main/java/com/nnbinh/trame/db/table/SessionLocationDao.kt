@@ -9,11 +9,11 @@ import androidx.room.Query
 @Dao
 interface SessionLocationDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun save(vararg sessionLocation: SessionLocation)
+  fun save(vararg sessionDistance: SessionDistance)
 
-  @Query("SELECT * FROM SessionLocation WHERE sessionId = :sessionId ORDER BY createdAt")
-  fun getBySessionId(sessionId: Long): LiveData<List<SessionLocation>>
+  @Query("SELECT * FROM SessionDistance WHERE sessionId = :sessionId ORDER BY createdAt")
+  fun getBySessionId(sessionId: Long): LiveData<List<SessionDistance>>
 
-  @Query("SELECT * FROM SessionLocation WHERE sessionId = :sessionId ORDER BY createdAt")
-  fun getBySessionIdWithoutLive(sessionId: Long): List<SessionLocation>
+  @Query("SELECT * FROM SessionDistance WHERE sessionId = :sessionId ORDER BY createdAt")
+  fun getBySessionIdWithoutLive(sessionId: Long): List<SessionDistance>
 }

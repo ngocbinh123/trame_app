@@ -6,18 +6,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.nnbinh.trame.R
 import com.nnbinh.trame.data.KEY_SESSION_ID
-import com.nnbinh.trame.data.PERCENT_DEFAULT_ZOOM
-import com.nnbinh.trame.data.RecordState
+import com.nnbinh.trame.data.SessionState
 import com.nnbinh.trame.databinding.ActivityRecordingBinding
-import com.nnbinh.trame.db.table.SessionLocation
 import com.nnbinh.trame.extension.setOnSingleClickListener
 import com.nnbinh.trame.helper.ServiceHelper
 import com.nnbinh.trame.service.TrackLocationService
@@ -34,7 +29,7 @@ class RecordingActivity : BaseActivity(), OnMapReadyCallback {
     }
   }
 
-  private lateinit var map: GoogleMap
+  private var map: GoogleMap? = null
   private val viewModel: RecordingVM by lazy {
     ViewModelProvider.AndroidViewModelFactory(application).create(RecordingVM::class.java)
   }
@@ -42,8 +37,7 @@ class RecordingActivity : BaseActivity(), OnMapReadyCallback {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val binding = DataBindingUtil.setContentView<ActivityRecordingBinding>(
-        this, R.layout.activity_recording
-    )
+        this, R.layout.activity_recording)
 
     binding.lifecycleOwner = this
     binding.viewModel = viewModel
@@ -52,10 +46,7 @@ class RecordingActivity : BaseActivity(), OnMapReadyCallback {
     binding.imvStop.setOnSingleClickListener { this.finish() }
 
     viewModel.sessionId.value = intent.getLongExtra(KEY_SESSION_ID, -1)
-    viewModel.locations.observe(this, {
-      it.lastOrNull()?.let { updateLocationOnMap() }
-    })
-
+    viewModel.distances.observe(this, { map?.let { m -> viewModel.drawRoute(m) } })
     startTrackingLocationService()
   }
 
@@ -69,7 +60,7 @@ class RecordingActivity : BaseActivity(), OnMapReadyCallback {
 
   override fun onBackPressed() {
     val recordingSession = viewModel.session.value
-    if (recordingSession != null && recordingSession.recordState == RecordState.RECORDING.name) {
+    if (recordingSession != null && recordingSession.state == SessionState.RECORDING.name) {
       Toast.makeText(this, R.string.you_are_recording, Toast.LENGTH_SHORT).show()
       return
     } else {
@@ -95,15 +86,5 @@ class RecordingActivity : BaseActivity(), OnMapReadyCallback {
     val intent = Intent(this.application, TrackLocationService::class.java)
     intent.putExtra(KEY_SESSION_ID, viewModel.sessionId.value)
     startService(intent)
-  }
-
-  private fun updateLocationOnMap() {
-    val location: SessionLocation = viewModel.locations.value!!.lastOrNull() ?: return
-    val startPlace = LatLng(location.preLongitude, location.preLongitude)
-    val endPlace = LatLng(location.latitude, location.longitude)
-
-    map.addMarker(MarkerOptions().position(startPlace))
-    map.addMarker(MarkerOptions().position(endPlace))
-    map.moveCamera(CameraUpdateFactory.newLatLngZoom(endPlace, PERCENT_DEFAULT_ZOOM))
   }
 }

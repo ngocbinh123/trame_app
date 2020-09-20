@@ -2,7 +2,10 @@ package com.nnbinh.trame.helper
 
 import android.app.ActivityManager
 import android.content.Context
-
+/**
+ * Provide methods related to Service
+ * isMyServiceRunning: check service is Running
+ * */
 object ServiceHelper {
   fun isMyServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
     val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

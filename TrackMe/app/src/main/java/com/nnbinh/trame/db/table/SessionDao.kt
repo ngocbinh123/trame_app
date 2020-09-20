@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.nnbinh.trame.data.RecordState
+import com.nnbinh.trame.data.SessionState
 
 @Dao
 interface SessionDao {
@@ -15,15 +15,6 @@ interface SessionDao {
 
   @Update
   fun update(session: Session)
-
-//  @Query("UPDATE Session SET distance = :distance WHERE id = :id")
-//  fun updateDistance(id: Long, distance: Double)
-//
-//  @Query("UPDATE Session SET avgSpeed = :newSpeed WHERE id = :id")
-//  fun updateAvgSpeed(id: Long, newSpeed: Double)
-//
-//  @Query("UPDATE Session SET recordState = :state WHERE id = :id")
-//  fun updateState(id: Long, state: String)
 
   @Query("SELECT * FROM Session ORDER BY id desc")
   fun getAll(): LiveData<List<Session>>
@@ -35,8 +26,8 @@ interface SessionDao {
    * default: getting recording session
    * expect: There is 1 recording session
    * */
-  @Query("SELECT * FROM Session WHERE recordState = :state ORDER BY id desc")
-  fun getSessionByState(state: String = RecordState.RECORDING.name): List<Session>
+  @Query("SELECT * FROM Session WHERE state = :state ORDER BY id desc")
+  fun getSessionByStateWithoutLive(state: String = SessionState.RECORDING.name): List<Session>
 
   @Query("SELECT * FROM Session WHERE id = :id LIMIT 1")
   fun getById(id: Long): LiveData<Session>

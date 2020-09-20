@@ -36,5 +36,5 @@ fun showDuration(v: TextView, duration: Long? = null) {
   var remainSecond = duration % ONE_HOUR
   val minute = remainSecond / ONE_MINUTE
   remainSecond = (remainSecond % ONE_MINUTE) / ONE_SECOND
-  v.text = String.format("%02d:%02d:%02d",hour, minute, remainSecond)
+  v.text = String.format("%02d:%02d:%02d", hour, minute, remainSecond)
 }

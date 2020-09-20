@@ -21,7 +21,7 @@ class PermissionHelper(activity: Activity) : EasyPermissions.PermissionCallbacks
   private var identifyNumber = 0
 
   /**
-   * check and request permissions: Location
+   * Check and request permissions: Location
    */
   fun performLocationTask(identifyNumber: Int = 0) {
     val context = activityRef.get() ?: return
@@ -84,8 +84,11 @@ class PermissionHelper(activity: Activity) : EasyPermissions.PermissionCallbacks
     }
   }
 
+  /**
+   * Callback of requesting location permissions
+   * */
   interface LocationPermissionCallBack {
-    fun onLocationGrant(identifyNumber : Int)
-    fun onLocationDeny(identifyNumber : Int)
+    fun onLocationGrant(identifyNumber: Int)
+    fun onLocationDeny(identifyNumber: Int)
   }
 }

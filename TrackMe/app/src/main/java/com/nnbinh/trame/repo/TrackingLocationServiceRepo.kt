@@ -4,10 +4,10 @@ import android.content.Context
 import android.location.Location
 import android.util.Log
 import com.nnbinh.trame.data.ONE_SECOND
-import com.nnbinh.trame.data.RecordState
-import com.nnbinh.trame.data.RecordState.RECORDING
+import com.nnbinh.trame.data.SessionState
+import com.nnbinh.trame.data.SessionState.RECORDING
 import com.nnbinh.trame.db.table.Session
-import com.nnbinh.trame.db.table.SessionLocation
+import com.nnbinh.trame.db.table.SessionDistance
 import com.nnbinh.trame.extension.addInto
 import com.nnbinh.trame.extension.toSecond
 import io.reactivex.Maybe
@@ -16,6 +16,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.Date
 
+/**
+ * provide methods to check/save Session, SessionDistance
+ * Scope: TrackLocationService
+ * */
 class TrackingLocationServiceRepo(context: Context, sessionId: Long,
     initFailCallback: () -> Unit) : BaseRepo(context) {
   private val TAG = "TrackingLocationServiceRepo"
@@ -30,16 +34,18 @@ class TrackingLocationServiceRepo(context: Context, sessionId: Long,
     Maybe
         .fromCallable {
           val recordingSession = if (sessionId.toInt() == -1) {
-            db.sessionDao().getAllWithoutLive().firstOrNull { it.recordState == RECORDING.name }
+            db.sessionDao().getAllWithoutLive().firstOrNull { it.state == RECORDING.name }
           } else {
             db.sessionDao().getByIdWithoutLive(sessionId)
-          } ?: throw Throwable("Could not find session with id = $sessionId ${sessionId.equals(-1)} - ${sessionId.toInt() == -1}")
+          } ?: throw Throwable("Could not find session with id = $sessionId ${
+            sessionId.equals(-1)
+          } - ${sessionId.toInt() == -1}")
 
-          recordingSession.recordState = RECORDING.name
+          recordingSession.state = RECORDING.name
           db.sessionDao().update(recordingSession)
           db.locationDao().getBySessionId(recordingSession.id).value?.let { ls ->
-            recordingSession.locations.clear()
-            recordingSession.locations.addAll(ls)
+            recordingSession.distances.clear()
+            recordingSession.distances.addAll(ls)
           }
           return@fromCallable recordingSession
         }
@@ -81,7 +87,7 @@ class TrackingLocationServiceRepo(context: Context, sessionId: Long,
           lastLocationTime = newLocationTime
           val speed = distance / duration
 
-          val sessionLocation = SessionLocation(
+          val sessionLocation = SessionDistance(
               preLongitude = lastLocation!!.longitude,
               prevLatitude = lastLocation!!.latitude,
               longitude = newLocation.longitude,
@@ -94,15 +100,15 @@ class TrackingLocationServiceRepo(context: Context, sessionId: Long,
           )
           db.locationDao().save(sessionLocation)
 
-          session!!.locations.add(sessionLocation)
+          session!!.distances.add(sessionLocation)
 
 //        update session: distance total, avg speed
           session!!.distance += distance
 //        session!!.duration += duration
           session!!.currentSpeed = speed
-          if (session!!.locations.isNotEmpty()) {
-            val total = session!!.locations.sumByDouble { it.speed.toDouble() }.toFloat()
-            session!!.avgSpeed = (total / session!!.locations.size)
+          if (session!!.distances.isNotEmpty()) {
+            val total = session!!.distances.sumByDouble { it.speed.toDouble() }.toFloat()
+            session!!.avgSpeed = (total / session!!.distances.size)
           }
           db.sessionDao().update(session!!)
           return@fromCallable true
@@ -133,11 +139,11 @@ class TrackingLocationServiceRepo(context: Context, sessionId: Long,
         .addInto(composite)
   }
 
-  fun updateSessionState(state: RecordState) {
+  fun updateSessionState(state: SessionState) {
     if (session == null) return
     Maybe
         .fromCallable {
-          session!!.recordState = state.name
+          session!!.state = state.name
           db.sessionDao().update(session!!)
           return@fromCallable true
         }
