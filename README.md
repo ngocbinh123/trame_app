@@ -20,6 +20,6 @@ Track Me App
       + lifecycle-viewmodel
       + rxjava, rxAndroid
       + stetho
-      +. easypermissions
+      + easypermissions
       
  
